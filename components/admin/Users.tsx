@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../../services/dbService';
 import { AdminUser, UserRole } from '../../types';
 
@@ -7,6 +7,11 @@ const Users: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>(db.getAdmins());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<Partial<AdminUser> | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<AdminUser | null>(null);
+
+  useEffect(() => {
+    setLoggedInUser(db.getCurrentUser());
+  }, []);
 
   const openModal = (user: Partial<AdminUser> | null = null) => {
     setCurrentUser(user ? { ...user } : { username: '', role: UserRole.FRONT_DESK, active: true });
@@ -70,7 +75,12 @@ const Users: React.FC = () => {
             <tbody className="divide-y">
               {users.map(user => (
                 <tr key={user.id} className="hover:bg-gray-50 transition text-sm">
-                  <td className="px-6 py-4 font-medium">{user.username}</td>
+                  <td className="px-6 py-4 font-medium flex items-center">
+                    {user.username}
+                    {loggedInUser?.id === user.id && (
+                      <span className="ml-2 text-xs bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">You</span>
+                    )}
+                  </td>
                   <td className="px-6 py-4">{user.role}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.active ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
@@ -78,7 +88,14 @@ const Users: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <button onClick={() => openModal(user)} className="text-ibaana-primary hover:underline font-semibold">Edit</button>
+                    <button 
+                      onClick={() => openModal(user)} 
+                      className="text-ibaana-primary hover:underline font-semibold"
+                      disabled={loggedInUser?.id === user.id && user.role === UserRole.SUPER_ADMIN}
+                      title={loggedInUser?.id === user.id && user.role === UserRole.SUPER_ADMIN ? "Cannot edit own Super Admin account" : ""}
+                    >
+                      Edit
+                    </button>
                   </td>
                 </tr>
               ))}

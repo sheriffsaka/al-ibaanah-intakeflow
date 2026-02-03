@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { APP_NAME, LOGO_URL, OFFICIAL_SITE_URL } from '../../constants.tsx';
 import { db } from '../../services/dbService';
+import { AdminUser } from '../../types';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,25 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
   const location = useLocation();
   const isHome = location.pathname === '/';
   const config = db.getConfig();
+  const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isAdmin) {
+      setCurrentUser(db.getCurrentUser());
+    }
+  }, [isAdmin]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -42,7 +62,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
             )}
           </Link>
           
-          <nav className="hidden md:flex space-x-8 items-center">
+          <nav className="hidden md:flex space-x-6 items-center">
             {!isAdmin && (
               <>
                 <a 
@@ -71,7 +91,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
               </>
             )}
             
-            {isAdmin ? (
+            {isAdmin && currentUser && (
               <>
                 <Link to="/admin" className="text-gray-300 hover:text-white transition text-xs font-black uppercase tracking-widest">Dashboard</Link>
                 <Link to="/admin/check-in" className="text-gray-300 hover:text-white transition text-xs font-black uppercase tracking-widest">Check-In</Link>
@@ -79,14 +99,31 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
                 <Link to="/admin/notifications" className="text-gray-300 hover:text-white transition text-xs font-black uppercase tracking-widest">Notifications</Link>
                 <Link to="/admin/users" className="text-gray-300 hover:text-white transition text-xs font-black uppercase tracking-widest">Users</Link>
                 <Link to="/admin/settings" className="text-gray-300 hover:text-white transition text-xs font-black uppercase tracking-widest">Settings</Link>
-                <button 
-                  onClick={() => navigate('/')} 
-                  className="bg-red-600 px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-white hover:bg-red-700 transition"
-                >
-                  Sign Out
-                </button>
+                
+                <div className="relative" ref={dropdownRef}>
+                  <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="flex items-center space-x-2 bg-gray-700/50 hover:bg-gray-700 px-3 py-2 rounded-lg">
+                    <span className="text-white font-bold text-sm">{currentUser.username}</span>
+                    <i className={`fas fa-chevron-down text-white/50 text-xs transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}></i>
+                  </button>
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 animate-fade-in">
+                      <div className="px-4 py-2 text-xs text-gray-500 border-b">
+                        <p className="font-bold text-gray-800">{currentUser.username}</p>
+                        <p>{currentUser.role}</p>
+                      </div>
+                      <button 
+                        onClick={() => navigate('/')} 
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
+                      >
+                        <i className="fas fa-sign-out-alt mr-2"></i> Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
-            ) : (
+            )}
+            
+            {!isAdmin && (
               <Link to="/admin" className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-ibaana-primary">Staff Login</Link>
             )}
           </nav>

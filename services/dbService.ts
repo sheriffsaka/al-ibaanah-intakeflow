@@ -52,6 +52,12 @@ class DBService {
     }));
   }
 
+  getCurrentUser(): AdminUser {
+    // In a real app, this would involve session/token management.
+    // For this mock service, we'll just return the superadmin.
+    return this.admins[0];
+  }
+
   getSlots() {
     return this.slots.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }
