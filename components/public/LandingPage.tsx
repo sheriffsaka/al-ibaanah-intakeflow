@@ -10,8 +10,11 @@ import {
   OFFICIAL_SITE_URL,
   BRAND_COLORS
 } from '../../constants.tsx';
+import { db } from '../../services/dbService';
 
 const LandingPage: React.FC = () => {
+  const config = db.getConfig();
+
   return (
     <div className="space-y-0">
       {/* Strategic Hero Section */}
@@ -38,12 +41,22 @@ const LandingPage: React.FC = () => {
               Welcome to the Al-Ibaanah IntakeFlow. Secure your mandatory placement assessment slot and streamline your arrival at our Cairo campus.
             </p>
             <div className="flex flex-wrap gap-4 pt-4">
-              <Link 
-                to="/enroll" 
-                className="px-10 py-5 bg-white text-emerald-950 font-black rounded-2xl shadow-2xl transition transform hover:-translate-y-1 hover:bg-amber-400"
-              >
-                Book My Assessment
-              </Link>
+              {config.registrationOpen ? (
+                <Link 
+                  to="/enroll" 
+                  className="px-10 py-5 bg-white text-emerald-950 font-black rounded-2xl shadow-2xl transition transform hover:-translate-y-1 hover:bg-amber-400"
+                >
+                  Book My Assessment
+                </Link>
+              ) : (
+                <div 
+                  className="px-10 py-5 bg-gray-400 text-white font-black rounded-2xl shadow-lg cursor-not-allowed flex items-center"
+                  title="Online registration is currently closed by the administration."
+                >
+                  <i className="fas fa-lock mr-3"></i>
+                  Registration Closed
+                </div>
+              )}
               <a 
                 href={OFFICIAL_SITE_URL}
                 target="_blank"
@@ -144,9 +157,15 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
             <div className="pt-6">
-              <Link to="/enroll" className="bg-ibaana-primary text-white px-10 py-5 rounded-2xl font-black hover:bg-emerald-900 transition shadow-xl shadow-emerald-900/20 inline-block">
-                Ready to Book Assessment?
-              </Link>
+              {config.registrationOpen ? (
+                <Link to="/enroll" className="bg-ibaana-primary text-white px-10 py-5 rounded-2xl font-black hover:bg-emerald-900 transition shadow-xl shadow-emerald-900/20 inline-block">
+                  Ready to Book Assessment?
+                </Link>
+              ) : (
+                 <div className="bg-gray-400 text-white px-10 py-5 rounded-2xl font-black cursor-not-allowed inline-block">
+                  Registration Currently Closed
+                </div>
+              )}
             </div>
           </div>
           <div className="relative">

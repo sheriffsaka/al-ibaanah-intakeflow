@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { APP_NAME, LOGO_URL, OFFICIAL_SITE_URL } from '../../constants.tsx';
+import { db } from '../../services/dbService';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === '/';
+  const config = db.getConfig();
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -40,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
             )}
           </Link>
           
-          <nav className="hidden md:flex space-x-10 items-center">
+          <nav className="hidden md:flex space-x-8 items-center">
             {!isAdmin && (
               <>
                 <a 
@@ -51,12 +53,21 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
                 >
                   Official Site <i className="fas fa-external-link-alt ml-2 opacity-50 text-[8px]"></i>
                 </a>
-                <Link 
-                  to="/enroll" 
-                  className="text-[10px] font-black uppercase tracking-widest text-white bg-ibaana-primary px-8 py-3 rounded-2xl hover:bg-emerald-900 transition shadow-lg shadow-emerald-900/10"
-                >
-                  Book Assessment
-                </Link>
+                {config.registrationOpen ? (
+                  <Link 
+                    to="/enroll" 
+                    className="text-[10px] font-black uppercase tracking-widest text-white bg-ibaana-primary px-8 py-3 rounded-2xl hover:bg-emerald-900 transition shadow-lg shadow-emerald-900/10"
+                  >
+                    Book Assessment
+                  </Link>
+                ) : (
+                  <div 
+                    className="text-[10px] font-black uppercase tracking-widest text-white bg-gray-500 px-8 py-3 rounded-2xl cursor-not-allowed"
+                    title="Registration is currently closed by the administration."
+                  >
+                    Booking Closed
+                  </div>
+                )}
               </>
             )}
             
@@ -64,6 +75,10 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
               <>
                 <Link to="/admin" className="text-gray-300 hover:text-white transition text-xs font-black uppercase tracking-widest">Dashboard</Link>
                 <Link to="/admin/check-in" className="text-gray-300 hover:text-white transition text-xs font-black uppercase tracking-widest">Check-In</Link>
+                <Link to="/admin/schedule" className="text-gray-300 hover:text-white transition text-xs font-black uppercase tracking-widest">Schedule</Link>
+                <Link to="/admin/notifications" className="text-gray-300 hover:text-white transition text-xs font-black uppercase tracking-widest">Notifications</Link>
+                <Link to="/admin/users" className="text-gray-300 hover:text-white transition text-xs font-black uppercase tracking-widest">Users</Link>
+                <Link to="/admin/settings" className="text-gray-300 hover:text-white transition text-xs font-black uppercase tracking-widest">Settings</Link>
                 <button 
                   onClick={() => navigate('/')} 
                   className="bg-red-600 px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-white hover:bg-red-700 transition"
@@ -77,7 +92,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
           </nav>
 
           <div className="md:hidden flex items-center">
-             <Link to={isAdmin ? "/admin" : "/enroll"} className="bg-ibaana-primary text-white p-3 rounded-xl shadow-lg">
+             <Link to={isAdmin ? "/admin" : (config.registrationOpen ? "/enroll" : "#")} className={`bg-ibaana-primary text-white p-3 rounded-xl shadow-lg ${!config.registrationOpen && !isAdmin ? 'bg-gray-500 cursor-not-allowed' : ''}`}>
                 <i className={`fas ${isAdmin ? 'fa-user-shield' : 'fa-user-plus'} text-lg`}></i>
              </Link>
           </div>

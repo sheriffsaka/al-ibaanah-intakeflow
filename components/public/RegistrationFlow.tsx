@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArabicLevel, Student, AppointmentSlot } from '../../types';
 import { db } from '../../services/dbService';
 import { PROFICIENCY_DESCRIPTIONS } from '../../constants.tsx';
@@ -9,6 +9,7 @@ const RegistrationFlow: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [slots, setSlots] = useState<AppointmentSlot[]>([]);
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
   const [formData, setFormData] = useState({
     fullName: '',
     phoneNumber: '',
@@ -22,7 +23,11 @@ const RegistrationFlow: React.FC = () => {
   });
 
   useEffect(() => {
-    setSlots(db.getSlots());
+    const config = db.getConfig();
+    setIsRegistrationOpen(config.registrationOpen);
+    if (config.registrationOpen) {
+      setSlots(db.getSlots());
+    }
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -43,6 +48,23 @@ const RegistrationFlow: React.FC = () => {
       alert(err.message);
     }
   };
+
+  if (!isRegistrationOpen) {
+    return (
+      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden text-center p-12 animate-fade-in">
+        <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full mx-auto flex items-center justify-center border-4 border-white shadow-xl">
+          <i className="fas fa-lock text-3xl"></i>
+        </div>
+        <h2 className="text-2xl font-bold mt-6 text-gray-800">Registration is Currently Closed</h2>
+        <p className="text-gray-500 mt-2">
+          The administration has temporarily paused online bookings. Please check back later or contact the front desk for more information.
+        </p>
+        <Link to="/" className="mt-8 inline-block bg-ibaana-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-emerald-900 transition">
+          Return to Homepage
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">

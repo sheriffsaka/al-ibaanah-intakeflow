@@ -7,6 +7,10 @@ import RegistrationFlow from './components/public/RegistrationFlow';
 import AdmissionSlip from './components/public/AdmissionSlip';
 import Dashboard from './components/admin/Dashboard';
 import CheckIn from './components/admin/CheckIn';
+import Users from './components/admin/Users';
+import Settings from './components/admin/Settings';
+import Schedule from './components/admin/Schedule';
+import Notifications from './components/admin/Notifications';
 import { LOGO_URL, OFFICIAL_SITE_URL } from './constants.tsx';
 
 const App: React.FC = () => {
@@ -67,6 +71,30 @@ const App: React.FC = () => {
         <Route path="/admin/check-in" element={
           <Layout isAdmin>
             <CheckIn />
+          </Layout>
+        } />
+        
+        <Route path="/admin/schedule" element={
+          <Layout isAdmin>
+            <Schedule />
+          </Layout>
+        } />
+        
+        <Route path="/admin/notifications" element={
+          <Layout isAdmin>
+            <Notifications />
+          </Layout>
+        } />
+
+        <Route path="/admin/users" element={
+          <Layout isAdmin>
+            <Users />
+          </Layout>
+        } />
+        
+        <Route path="/admin/settings" element={
+          <Layout isAdmin>
+            <Settings />
           </Layout>
         } />
 

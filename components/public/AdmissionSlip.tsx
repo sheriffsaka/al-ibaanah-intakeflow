@@ -5,6 +5,7 @@ import { Student, AppointmentSlot } from '../../types';
 import { db } from '../../services/dbService';
 import { WHAT_TO_BRING_CHECKLIST, INSTITUTION_NAME, LOGO_URL } from '../../constants.tsx';
 import html2canvas from 'html2canvas';
+import qrcode from 'qrcode';
 
 const AdmissionSlip: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +13,7 @@ const AdmissionSlip: React.FC = () => {
   const [slot, setSlot] = useState<AppointmentSlot | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const slipRef = useRef<HTMLDivElement>(null);
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (id) {
@@ -23,6 +25,21 @@ const AdmissionSlip: React.FC = () => {
       }
     }
   }, [id]);
+
+  useEffect(() => {
+    if (student?.registrationCode && qrCanvasRef.current) {
+      qrcode.toCanvas(qrCanvasRef.current, student.registrationCode, {
+        width: 128,
+        margin: 1,
+        color: {
+          dark: '#062e23',
+          light: '#ffffff'
+        }
+      }, (error) => {
+        if (error) console.error(error);
+      });
+    }
+  }, [student]);
 
   if (!student || !slot) return <div className="text-center py-20 font-medium text-gray-500">Admission Slip Not Found</div>;
 
@@ -130,7 +147,7 @@ const AdmissionSlip: React.FC = () => {
 
             <div className="mt-8 p-3 bg-white rounded-xl shadow-inner">
               <div className="w-32 h-32 bg-white flex items-center justify-center border border-gray-100">
-                <i className="fas fa-qrcode text-6xl text-gray-900"></i>
+                <canvas ref={qrCanvasRef}></canvas>
               </div>
             </div>
             <p className="text-[10px] mt-4 text-emerald-300 font-medium">Valid for evaluation day only</p>
