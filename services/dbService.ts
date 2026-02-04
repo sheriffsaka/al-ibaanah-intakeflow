@@ -3,10 +3,12 @@ import { Student, AppointmentSlot, ArabicLevel, SystemConfig, UserRole, AdminUse
 
 // Mock initial data
 const MOCK_SLOTS: AppointmentSlot[] = [
-  { id: '1', date: '2024-06-01', startTime: '09:00', endTime: '10:30', capacity: 20, enrolledCount: 5 },
-  { id: '2', date: '2024-06-01', startTime: '11:00', endTime: '12:30', capacity: 20, enrolledCount: 20 },
-  { id: '3', date: '2024-06-02', startTime: '09:00', endTime: '10:30', capacity: 20, enrolledCount: 12 },
-  { id: '4', date: '2024-06-02', startTime: '11:00', endTime: '12:30', capacity: 20, enrolledCount: 0 },
+  { id: '1', date: '2024-06-01', startTime: '09:00', endTime: '10:30', capacity: 10, enrolledCount: 5, gender: 'Male' },
+  { id: '2', date: '2024-06-01', startTime: '09:00', endTime: '10:30', capacity: 15, enrolledCount: 8, gender: 'Female' },
+  { id: '3', date: '2024-06-01', startTime: '11:00', endTime: '12:30', capacity: 10, enrolledCount: 10, gender: 'Male' },
+  { id: '4', date: '2024-06-01', startTime: '11:00', endTime: '12:30', capacity: 15, enrolledCount: 7, gender: 'Female' },
+  { id: '5', date: '2024-06-02', startTime: '09:00', endTime: '10:30', capacity: 10, enrolledCount: 1, gender: 'Male' },
+  { id: '6', date: '2024-06-02', startTime: '09:00', endTime: '10:30', capacity: 15, enrolledCount: 0, gender: 'Female' },
 ];
 
 const MOCK_ADMINS: AdminUser[] = [
@@ -101,6 +103,7 @@ class DBService {
   registerStudent(data: Omit<Student, 'id' | 'registrationCode' | 'groupNumber' | 'checkedIn' | 'createdAt'>): Student {
     const slot = this.slots.find(s => s.id === data.slotId);
     if (!slot) throw new Error("Invalid slot");
+    if (slot.gender !== data.gender) throw new Error("Gender does not match the selected slot.");
     if (slot.enrolledCount >= slot.capacity) throw new Error("Slot full");
 
     const code = `AIB-${new Date().getFullYear()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
@@ -171,12 +174,17 @@ class DBService {
       return acc;
     }, {} as Record<string, number>);
 
+    const maleCount = this.students.filter(s => s.gender === 'Male').length;
+    const femaleCount = this.students.filter(s => s.gender === 'Female').length;
+
     return {
       total,
       checkedIn,
       booked: total - checkedIn,
       levelCounts,
-      todayExpected: this.students.length // Simplification for demo
+      todayExpected: this.students.length, // Simplification for demo
+      maleCount,
+      femaleCount
     };
   }
 

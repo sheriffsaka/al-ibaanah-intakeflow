@@ -37,6 +37,7 @@ export interface AppointmentSlot {
   endTime: string;
   capacity: number;
   enrolledCount: number;
+  gender: 'Male' | 'Female';
 }
 
 export interface AdminUser {

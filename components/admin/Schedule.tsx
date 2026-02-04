@@ -11,7 +11,7 @@ const Schedule: React.FC = () => {
 
   const openModal = (slot: Partial<AppointmentSlot> | null = null) => {
     setError('');
-    setCurrentSlot(slot ? { ...slot } : { date: '', startTime: '09:00', endTime: '10:30', capacity: 20 });
+    setCurrentSlot(slot ? { ...slot } : { date: '', startTime: '09:00', endTime: '10:30', capacity: 20, gender: 'Male' });
     setIsModalOpen(true);
   };
 
@@ -27,7 +27,7 @@ const Schedule: React.FC = () => {
     try {
       if (currentSlot.id) {
         // Update
-        db.updateSlot(currentSlot.id, { capacity: currentSlot.capacity });
+        db.updateSlot(currentSlot.id, { capacity: currentSlot.capacity, gender: currentSlot.gender });
       } else {
         // Create
         db.addSlot({
@@ -35,6 +35,7 @@ const Schedule: React.FC = () => {
           startTime: currentSlot.startTime || '',
           endTime: currentSlot.endTime || '',
           capacity: currentSlot.capacity || 0,
+          gender: currentSlot.gender || 'Male',
         });
       }
       setSlots([...db.getSlots()]);
@@ -55,7 +56,7 @@ const Schedule: React.FC = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (currentSlot) {
       setCurrentSlot({ ...currentSlot, [name]: name === 'capacity' ? parseInt(value, 10) : value });
@@ -81,24 +82,24 @@ const Schedule: React.FC = () => {
       </div>
 
       <div className="space-y-8">
-        {/* FIX: Replaced Object.entries with Object.keys for better type inference.
-The original Object.entries caused `dateSlots` to be of type `unknown`.
-Iterating with Object.keys and then accessing `groupedSlots[date]` ensures type safety. */}
         {Object.keys(groupedSlots).map((date) => (
           <div key={date}>
             <h2 className="font-bold text-lg mb-3 border-b pb-2">{date}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {groupedSlots[date].map(slot => (
-                <div key={slot.id} className="bg-white rounded-lg shadow-sm border p-4 flex flex-col justify-between">
+                <div key={slot.id} className={`bg-white rounded-lg shadow-sm border p-4 flex flex-col justify-between border-l-4 ${slot.gender === 'Male' ? 'border-blue-500' : 'border-pink-500'}`}>
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <p className="font-bold text-lg">{slot.startTime} - {slot.endTime}</p>
-                      <div className="relative w-24 h-4 bg-gray-200 rounded-full overflow-hidden">
+                      <span className={`text-xs font-bold px-2 py-1 rounded ${slot.gender === 'Male' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'}`}>
+                        {slot.gender}
+                      </span>
+                    </div>
+                    <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden my-2">
                         <div 
                           className="absolute top-0 left-0 h-full bg-ibaana-primary" 
                           style={{ width: `${(slot.enrolledCount / slot.capacity) * 100}%` }}
                         ></div>
-                      </div>
                     </div>
                     <p className="text-sm text-gray-500">
                       <span className="font-semibold">{slot.enrolledCount}</span> of <span className="font-semibold">{slot.capacity}</span> seats booked
@@ -138,8 +139,11 @@ Iterating with Object.keys and then accessing `groupedSlots[date]` ensures type 
                   <input required type="date" name="date" value={currentSlot.date} onChange={handleInputChange} disabled={!!currentSlot.id} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 disabled:bg-gray-100" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Capacity</label>
-                  <input required type="number" name="capacity" min="1" value={currentSlot.capacity} onChange={handleInputChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+                  <label className="block text-sm font-medium text-gray-700">Gender Designation</label>
+                  <select name="gender" value={currentSlot.gender} onChange={handleInputChange} disabled={!!currentSlot.id && (currentSlot.enrolledCount ?? 0) > 0} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 disabled:bg-gray-100">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Start Time</label>
@@ -148,6 +152,10 @@ Iterating with Object.keys and then accessing `groupedSlots[date]` ensures type 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">End Time</label>
                   <input required type="time" name="endTime" value={currentSlot.endTime} onChange={handleInputChange} disabled={!!currentSlot.id} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 disabled:bg-gray-100" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Capacity</label>
+                  <input required type="number" name="capacity" min="1" value={currentSlot.capacity} onChange={handleInputChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
                 </div>
                 {error && <p className="text-red-500 text-sm md:col-span-2">{error}</p>}
               </div>

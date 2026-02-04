@@ -4,6 +4,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { APP_NAME, LOGO_URL, OFFICIAL_SITE_URL } from '../../constants.tsx';
 import { db } from '../../services/dbService';
 import { AdminUser } from '../../types';
+import LanguageSwitcher from './LanguageSwitcher.tsx';
+import { useLanguage } from '../../contexts/LanguageContext.tsx';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,6 +15,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   const isHome = location.pathname === '/';
   const config = db.getConfig();
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
@@ -51,12 +54,12 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
               />
             </div>
             {!isAdmin && (
-              <span className="ml-4 font-black text-xs uppercase tracking-[0.2em] text-ibaana-primary hidden lg:block">
+              <span className="ms-4 font-black text-xs uppercase tracking-[0.2em] text-ibaana-primary hidden lg:block">
                 IntakeFlow
               </span>
             )}
             {isAdmin && (
-              <span className="ml-4 font-black text-xs uppercase tracking-widest text-white border-l border-gray-600 pl-4 hidden sm:block">
+              <span className="ms-4 font-black text-xs uppercase tracking-widest text-white border-s border-gray-600 ps-4 hidden sm:block">
                 Staff Ops
               </span>
             )}
@@ -65,27 +68,28 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
           <nav className="hidden md:flex space-x-6 items-center">
             {!isAdmin && (
               <>
+                <LanguageSwitcher />
                 <a 
                   href={OFFICIAL_SITE_URL} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-ibaana-primary transition flex items-center"
                 >
-                  Official Site <i className="fas fa-external-link-alt ml-2 opacity-50 text-[8px]"></i>
+                  {t('official_site')} <i className="fas fa-external-link-alt ms-2 opacity-50 text-[8px]"></i>
                 </a>
                 {config.registrationOpen ? (
                   <Link 
                     to="/enroll" 
                     className="text-[10px] font-black uppercase tracking-widest text-white bg-ibaana-primary px-8 py-3 rounded-2xl hover:bg-emerald-900 transition shadow-lg shadow-emerald-900/10"
                   >
-                    Book Assessment
+                    {t('book_assessment')}
                   </Link>
                 ) : (
                   <div 
                     className="text-[10px] font-black uppercase tracking-widest text-white bg-gray-500 px-8 py-3 rounded-2xl cursor-not-allowed"
-                    title="Registration is currently closed by the administration."
+                    title={t('booking_closed_tooltip')}
                   >
-                    Booking Closed
+                    {t('booking_closed')}
                   </div>
                 )}
               </>
@@ -106,7 +110,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
                     <i className={`fas fa-chevron-down text-white/50 text-xs transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}></i>
                   </button>
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 animate-fade-in">
+                    <div className="absolute end-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 animate-fade-in">
                       <div className="px-4 py-2 text-xs text-gray-500 border-b">
                         <p className="font-bold text-gray-800">{currentUser.username}</p>
                         <p>{currentUser.role}</p>
@@ -115,7 +119,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
                         onClick={() => navigate('/')} 
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
                       >
-                        <i className="fas fa-sign-out-alt mr-2"></i> Sign Out
+                        <i className="fas fa-sign-out-alt me-2"></i> Sign Out
                       </button>
                     </div>
                   )}
@@ -124,7 +128,7 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
             )}
             
             {!isAdmin && (
-              <Link to="/admin" className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-ibaana-primary">Staff Login</Link>
+              <Link to="/admin" className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-ibaana-primary">{t('staff_login')}</Link>
             )}
           </nav>
 
@@ -144,11 +148,11 @@ const Layout: React.FC<LayoutProps> = ({ children, isAdmin = false }) => {
         <footer className="bg-gray-50 border-t border-gray-100 py-12">
           <div className="max-w-7xl mx-auto px-4 flex flex-col items-center">
              <div className="flex gap-8 mb-6">
-                <a href={OFFICIAL_SITE_URL} target="_blank" className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-ibaana-primary transition">Official Site</a>
-                <a href="#contact" className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-ibaana-primary transition">Campus Info</a>
+                <a href={OFFICIAL_SITE_URL} target="_blank" className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-ibaana-primary transition">{t('official_site')}</a>
+                <a href="#contact" className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-ibaana-primary transition">{t('campus_info')}</a>
              </div>
             <p className="text-center text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] max-w-md leading-relaxed">
-              &copy; {new Date().getFullYear()} Al-Ibaanah Arabic Center | Nasr City, Cairo
+              &copy; {new Date().getFullYear()} {t('footer_copyright')}
             </p>
           </div>
         </footer>

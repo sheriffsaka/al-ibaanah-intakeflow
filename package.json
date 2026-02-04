@@ -1,3 +1,4 @@
+
 {
   "name": "al-ibaanah-intakeflow",
   "private": true,
@@ -9,16 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "framer-motion": "^11.11.17",
-    "html2canvas": "^1.4.1",
-    "html5-qrcode": "^2.3.8",
-    "lucide-react": "^0.469.0",
-    "qrcode": "^1.5.4",
-    "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.0",
-    "recharts": "^2.15.0"
+    "recharts": "^2.15.0",
+    "html2canvas": "^1.4.1",
+    "lucide-react": "^0.469.0",
+    "framer-motion": "^11.11.17"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
