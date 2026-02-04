@@ -36,13 +36,13 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       await Promise.all(
         availableLocales.map(async (lang) => {
           try {
-            // Fetch paths are relative to the index.html file in the browser
-            const response = await fetch(`./locales/${lang}.json`);
+            // Use absolute path from public directory root
+            const response = await fetch(`/locales/${lang}.json`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
             translationsData[lang] = data;
           } catch (e) {
-            console.error(`Could not load locale file: ./locales/${lang}.json`, e);
+            console.error(`Could not load locale file: /locales/${lang}.json`, e);
           }
         })
       );
